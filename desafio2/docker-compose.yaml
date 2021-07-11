@@ -1,0 +1,20 @@
+version: '3'
+
+services: 
+  api:
+    container_name: route-api
+    build: ./route-api/
+    entrypoint: .docker/entrypoint.sh
+    ports:
+      - 3000:3000
+    volumes:
+      - ./route-api:/home/node/app
+
+  app:
+    container_name: route-app
+    build: ./route-app/
+    entrypoint: .docker/entrypoint.sh
+    ports:
+      - 3001:3000
+    volumes:
+      - ./route-app:/home/node/app
