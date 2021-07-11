@@ -67,6 +67,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (
   context
 ) => {
   const { data: products } = await http.get("/products");
+
   return {
     props: {
       products,

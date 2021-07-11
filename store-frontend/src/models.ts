@@ -8,6 +8,14 @@ export type Product = {
   created_at: string;
 };
 
+export type CreditCard = {
+  number: string;
+  name: string;
+  cvv: string;
+  expirationMonth: number;
+  expirationYear: number;
+};
+
 export const products: Product[] = [
   {
     id: "uuid",
