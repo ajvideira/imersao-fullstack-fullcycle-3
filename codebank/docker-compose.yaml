@@ -5,7 +5,7 @@ services:
     container_name: codebank
     build: .
     ports:
-      - '50051:50051'
+      - '50052:50052'
     volumes:
       - .:/go/src/
     extra_hosts:
