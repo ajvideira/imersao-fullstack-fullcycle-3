@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Connection, In, Repository } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
+import { PaymentService } from './payment/payment.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(Product) private productRepository: Repository<Product>,
+    private paymentService: PaymentService,
+    private connection: Connection,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
@@ -25,22 +28,60 @@ export class OrdersService {
         (product) => product.id === item.product_id,
       ).price;
     });
-    return this.orderRepository.save(order);
+
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const newOrder = await queryRunner.manager.save(order);
+      await this.paymentService.payment({
+        creditCard: {
+          name: newOrder.credit_card.name,
+          number: newOrder.credit_card.number,
+          cvv: newOrder.credit_card.cvv,
+          expirationMonth: newOrder.credit_card.expiration_month,
+          expirationYear: newOrder.credit_card.expiration_year,
+        },
+        amount: newOrder.total,
+        store: process.env.STORE_NAME,
+        description: `Produtos: ${products.map((p) => p.name).join(', ')}`,
+      });
+
+      await queryRunner.manager.update(
+        Order,
+        { id: newOrder.id },
+        { status: OrderStatus.Approved },
+      );
+
+      queryRunner.commitTransaction();
+
+      return this.orderRepository.findOne(newOrder.id, {
+        relations: ['items'],
+      });
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   findAll() {
-    return `This action returns all orders`;
+    return this.orderRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  findOne(id: string) {
+    return this.orderRepository.findOneOrFail(id, {
+      relations: ['items', 'items.product'],
+    });
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
+  update(id: string, updateOrderDto: UpdateOrderDto) {
     return `This action updates a #${id} order`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} order`;
   }
 }
