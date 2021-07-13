@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
       <Toolbar>
         <Link href="/" as="/" passHref>
           <Button color="inherit" startIcon={<StoreIcon />} component="a">
-            <Typography variant="h6">Code Store</Typography>
+            <Typography variant="h6">Code Invoice</Typography>
           </Button>
         </Link>
       </Toolbar>

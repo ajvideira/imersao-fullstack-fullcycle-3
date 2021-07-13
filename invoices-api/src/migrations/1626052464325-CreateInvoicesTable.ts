@@ -12,6 +12,10 @@ export class CreateInvoicesTable1626052464325 implements MigrationInterface {
             isPrimary: true,
           },
           {
+            name: 'amount',
+            type: 'double precision',
+          },
+          {
             name: 'payment_date',
             type: 'timestamp',
           },

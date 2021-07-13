@@ -16,6 +16,9 @@ export class Invoice {
   id: string;
 
   @Column()
+  amount: number;
+
+  @Column()
   payment_date: Date;
 
   @Column()

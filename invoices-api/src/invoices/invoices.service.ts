@@ -32,7 +32,16 @@ export class InvoicesService {
     return this.invoiceRepository.save(invoice);
   }
 
-  findAll() {
-    return this.invoiceRepository.find();
+  findAll(creditCardNumber?: string) {
+    let query = this.invoiceRepository.createQueryBuilder('invoice');
+
+    if (creditCardNumber) {
+      query = query
+        .select(['invoice.*'])
+        .leftJoin('invoice.credit_card', 'credit_card')
+        .where('credit_card.number = :creditCardNumber', { creditCardNumber });
+    }
+
+    return query.execute();
   }
 }

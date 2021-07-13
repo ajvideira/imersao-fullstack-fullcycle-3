@@ -1,3 +1,4 @@
+import { Exclude, Expose } from 'class-transformer';
 import {
   BeforeInsert,
   Column,
@@ -8,11 +9,13 @@ import {
 
 import { v4 as uuidV4 } from 'uuid';
 
+@Exclude()
 @Entity('credit_cards')
 export class CreditCard {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Expose()
   @Column()
   number: string;
 

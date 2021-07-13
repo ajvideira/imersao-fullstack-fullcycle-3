@@ -1,12 +1,9 @@
-import { Controller, Get, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Param, ValidationPipe } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
-import {
-  CreateInvoiceDto,
-  KafkaCreateInvoiceDto,
-} from './dto/create-invoice.dto';
+import { KafkaCreateInvoiceDto } from './dto/create-invoice.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('invoices')
+@Controller('/credit-cards/:creditCardNumber/invoices')
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
@@ -18,7 +15,7 @@ export class InvoicesController {
   }
 
   @Get()
-  findAll() {
-    return this.invoicesService.findAll();
+  findAll(@Param('creditCardNumber') creditCardNumber: string) {
+    return this.invoicesService.findAll(creditCardNumber);
   }
 }
