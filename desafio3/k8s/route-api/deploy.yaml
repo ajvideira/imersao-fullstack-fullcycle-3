@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: desafio3-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: desafio3-api
+  template:
+    metadata:
+      labels:
+        app: desafio3-api
+    spec:
+      containers:
+        - name: desafio3-api
+          image: ajvideira/imersao-fsfc-desafio3-api :latest
+          ports:
+            - containerPort: 3000
