@@ -17,26 +17,25 @@ import http from "../../http";
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { useEffect } from "react";
+import useSWR from "swr";
 
 type Props = {
   creditCards: CreditCard[];
 };
+
+const fetcher = (resource: string) =>
+  http.get(resource).then((res) => res.data);
 
 const InvoicesListPage: NextPage<Props> = ({ creditCards }) => {
   const [creditCardNumber, setCreditCardNumber] = useState<string>(
     creditCards.length ? creditCards[0].number : ""
   );
 
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      const { data } = await http.get<Invoice[]>(
-        `/credit-cards/${creditCardNumber}/invoices`
-      );
-      setInvoices(data);
-    })();
-  }, [creditCardNumber]);
+  const { data: invoices = [], error } = useSWR<Invoice[]>(
+    `/credit-cards/${creditCardNumber}/invoices`,
+    fetcher,
+    { refreshInterval: 3000 }
+  );
 
   if (!creditCards.length) {
     return (
